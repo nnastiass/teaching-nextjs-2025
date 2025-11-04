@@ -22,4 +22,6 @@ export async function up(db: Kysely<unknown>): Promise<void> {
 		duration integer not null,
 		foreign key (album_id) references albums (id)
 	) STRICT`.execute(db);
+
+
 }
