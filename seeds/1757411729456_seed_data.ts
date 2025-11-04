@@ -70,7 +70,7 @@ export async function seed(db: Kysely<DB>): Promise<void> {
   }
  
   const albums = await db.selectFrom("albums").selectAll().execute();
- 
+ //uug
   for (const album of albums) {
     const typeOfAlbum = faker.number.int({ min: 0, max: 9 });
  
