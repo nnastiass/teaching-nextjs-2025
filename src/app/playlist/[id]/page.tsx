@@ -1,5 +1,6 @@
 import { getDb } from "@/lib/db";
 import Link from "next/link";
+import { RemovePlaylistSongButton } from "./RemovePlaylistSongButton";
 
 function formatDuration(duration: number): string {
   const minutes = Math.floor(duration / 60);
@@ -63,6 +64,7 @@ export default async function PlaylistPage({
                 <th>Album</th>
                 <th>Author</th>
                 <th>Duration</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -81,6 +83,12 @@ export default async function PlaylistPage({
                     </Link>
                   </td>
                   <td>{formatDuration(song.duration)}</td>
+                  <td>
+                    <RemovePlaylistSongButton
+                      playlistId={playlist.id}
+                      songId={song.id}
+                    />
+                  </td>
                 </tr>
               ))}
             </tbody>
