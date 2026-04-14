@@ -115,7 +115,9 @@ export async function seed(db: Kysely<DB>): Promise<void> {
 
   const playlists = await db.selectFrom("playlists").selectAll().execute();
   const songs = await db.selectFrom("songs").select("id").execute();
+  const author = await db.selectFrom("authors").select("id").execute();
   const songIds = songs.map((song) => song.id);
+  const authorsIds = author.map((author) => author.id);
 
   for (const playlist of playlists) {
     const numSongs = faker.number.int({ min: 1, max: 20 });
@@ -157,6 +159,25 @@ export async function seed(db: Kysely<DB>): Promise<void> {
 
   // Seed playback events (5-30 random events per user)
   const eventNames = ["playback_start", "playback_end", "playback_skip"] as const;
+
+  for (const user of users) {
+    const numFollows = faker.number.int({ min: 0, max: 20 });
+    const randomAuthorsIds = faker.helpers.arrayElements(authorsIds, {
+      min: 0,
+      max: Math.min(numFollows, songIds.length),
+    });
+
+    for (const authorId of randomAuthorsIds) {
+      await db
+        .insertInto("user_followed")
+        .values({
+          user_id: user.id,
+          author_id: authorId,
+          created_at: faker.date.past().getTime(),
+        })
+        .execute();
+    }
+  }
 
   for (const user of users) {
     const numEvents = faker.number.int({ min: 5, max: 30 });

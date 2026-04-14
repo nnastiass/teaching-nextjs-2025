@@ -1,5 +1,7 @@
 import { getDb } from "@/lib/db";
 import Link from "next/link";
+import { FollowAuthorButton } from "./FollowAuthorButton";
+import { getSessionUserId } from "@/actions/login";
 
 export default async function AuthorDetailPage({
   params,
@@ -13,6 +15,7 @@ export default async function AuthorDetailPage({
   console.log("Album detail id:", id);
 
   const authorId = parseInt(id);
+  const userId = await getSessionUserId();
 
   if (isNaN(authorId)) {
     return <div>Invalid Album id</div>;
@@ -34,6 +37,17 @@ export default async function AuthorDetailPage({
     .where("author_id", "=", author.id)
     .execute();
 
+  const followedAuthors =
+    userId != null
+      ? await db
+          .selectFrom("user_followed")
+          .select("author_id")
+          .where("user_id", "=", userId)
+          .execute()
+      : null;
+
+const followedAuthorsIds =
+    followedAuthors != null ? new Set(followedAuthors.map((ls) => ls.author_id)) : null;
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
@@ -49,6 +63,12 @@ export default async function AuthorDetailPage({
               </li>
             ))}
           </ul>
+          {followedAuthorsIds != null ? (
+                                <FollowAuthorButton
+                                  authorId={author.id}
+                                  isFollowed={followedAuthorsIds.has(author.id)}
+                                />
+                              ) : null}
         </div>
       </main>
     </div>
